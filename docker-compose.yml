@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "example-swagger-ui"
+    ports:
+      - "80:8080"
+    volumes:
+      - ./docs/api/example.yaml:/example.yaml
+    environment:
+      SWAGGER_JSON: /example.yaml
+    networks:
+      - example-network
+  mission-planner-mock:
+    image: stoplight/prism:4.1.2
+    container_name: "example-prism-mock"
+    command: mock -h 0.0.0.0 /prism/example.yaml
+    volumes:
+      - ./docs/api/example.yaml:/prism/example.yaml
+    ports:
+      - "4010:4010"
+    networks:
+      - example-network
+networks:
+  example-network:
+    driver: bridge
+    name: example-network

@@ -1,0 +1,8 @@
+
+title Request Creation
+
+Requester->API: New Request
+API->ExternalAPI: Fetchs information
+ExternalAPI->API: Returns information
+note right of API: Saves  Request
+API->Requester: Returns Mission Id

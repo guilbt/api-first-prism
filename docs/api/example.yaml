@@ -1,0 +1,200 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: Local server V1
+    url: http://localhost:4010
+info:
+  description: VMC's MR API
+  version: "1.0.0"
+  title: Simple Request
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Simple Request
+#    description:
+paths:
+  /v1/requests:
+    post:
+      tags:
+        - Simple Request
+      summary: Create a request
+      # x-google-backend:
+      #   address: 'http://IP/v1/requests'
+      operationId: addRequest
+      description: Adds a request
+      responses:
+        '201':
+          description: request created, returns ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleSuccessResponse'
+        '400':
+          description: 'invalid input, object invalid'
+        '422':
+          description: 'invalid input, object parameters invalid'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimpleRequestRequest'
+            examples:
+              uni3-max:
+                summary: "Järntorget to Domkyrkan"
+                value:
+                  {
+                    "summary": "Dinner",
+                    "userId": "73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79",
+                    "trip": {
+                      "from": {
+                        "lat": 57.70012388414703,
+                        "lng": 11.952490030559865,
+                        "name": "Järntorget"
+                      },
+                      "to": {
+                        "lat": 57.70477296443584,
+                        "lng": 11.965172647559621,
+                        "name": "Domkyrkan"
+                      },
+                    }
+                  }
+
+  /v1/users/{userId}/requests:
+    get:
+      tags:
+        - Users
+      # x-google-backend:
+      #   address: 'http://IP'
+      #   path_translation: APPEND_PATH_TO_ADDRESS
+      summary: Get Requests of User
+      operationId: getRequestsOfUser
+      description: Get requests of a User
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user related to requests
+          required: true
+          schema:
+            type: string
+            example: 73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79
+      responses:
+        '200':
+          description: 'Return array of requests of a user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestsWrapper'
+        '404':
+          description: 'User not found'
+components:
+  schemas:
+    SimpleSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Simple Request Created, Validation In Progress"
+        id:
+          type: string
+          example: "73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79"
+    SimpleErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Request Failed due to X!"
+    RequestsWrapper:
+      type: object
+      required:
+        - requests
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+    Request:
+      type: object
+      required:
+        - userId
+        - trip
+      properties:
+        id:
+          type: string
+          example: 73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79
+        summary:
+          type: string
+          example: A request
+        userId:
+          type: string
+          example: 73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79
+        trip:
+          $ref: '#/components/schemas/Trip'
+        deleted:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-02-01T14:23:26.095Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-02-01T14:23:26.095Z"
+        route:
+          type: object
+          example: null
+    SimpleRequestRequest:
+      type: object
+      required:
+        - userId
+        - trip
+        # - toBeRemovedField 
+      description: Simple Request
+      properties:
+        summary:
+          type: string
+          example: A request
+        # toBeRemovedField: #Add this field to check the 422 error for missing a property
+        #   type: string
+        #   example: This shouldn't be here
+        userId:
+          type: string
+          example: 73eaed12-eb20-42b5-9ec1-f9d1ff9d8f79
+        trip:
+          $ref: '#/components/schemas/Trip'
+    Trip:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          $ref: '#/components/schemas/Location'
+        to:
+          $ref: '#/components/schemas/Location'
+    Location:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          example: 58.774314
+          minimum: -90
+          maximum: 90
+        lng:
+          type: number
+          format: double
+          example: 13.0019470
+          minimum: -180
+          maximum: 180
+        name:
+          type: string
+          example: 'Gothenburg'
